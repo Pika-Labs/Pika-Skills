@@ -157,15 +157,15 @@ def ensure_funded(min_balance: int = 100, poll_interval: int = 10, poll_timeout:
 
     # Pick smallest sufficient product
     deficit = min_balance - balance
-    products_sorted = sorted(products, key=lambda p: p["num_credits"])
-    chosen = next((p for p in products_sorted if p["num_credits"] >= deficit), products_sorted[-1])
+    products_sorted = sorted(products, key=lambda p: p["numCredits"])
+    chosen = next((p for p in products_sorted if p["numCredits"] >= deficit), products_sorted[-1])
 
     # Create checkout session
     try:
         r = requests.post(
             f"{base_url}/developer/topup",
             headers={**auth_headers, "Content-Type": "application/json"},
-            json={"product_id": chosen["product_id"]},
+            json={"product_id": chosen["productId"]},
             timeout=15,
         )
         checkout_url = r.json().get("data", r.json()).get("checkout_url", "") if r.ok else ""
@@ -179,10 +179,10 @@ def ensure_funded(min_balance: int = 100, poll_interval: int = 10, poll_timeout:
     print(json.dumps({
         "status": "needs_topup",
         "balance": balance,
-        "product": chosen["title"],
-        "credits": chosen["num_credits"],
+        "product": chosen["name"],
+        "credits": chosen["numCredits"],
         "checkout_url": checkout_url,
-        "message": f"Open the checkout URL to purchase {chosen['title']}. Waiting for payment...",
+        "message": f"Open the checkout URL to purchase {chosen['name']}. Waiting for payment...",
     }))
     sys.stdout.flush()
 
