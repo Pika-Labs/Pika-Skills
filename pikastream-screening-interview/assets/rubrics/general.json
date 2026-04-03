@@ -1,0 +1,103 @@
+{
+  "role": "General Screening",
+  "categories": [
+    {
+      "name": "Communication",
+      "weight": 0.30,
+      "criteria": [
+        {
+          "name": "Verbal Clarity",
+          "description": "Can the candidate express thoughts clearly and concisely?",
+          "scores": {
+            "1": "Poor - Disorganized, hard to follow",
+            "3": "Adequate - Generally clear with occasional tangents",
+            "5": "Excellent - Structured, articulate, easy to follow"
+          }
+        },
+        {
+          "name": "Listening",
+          "description": "Does the candidate listen carefully and respond to what was asked?",
+          "scores": {
+            "1": "Poor - Frequently misses or ignores the question",
+            "3": "Adequate - Addresses most questions directly",
+            "5": "Excellent - Attentive, asks clarifying questions when needed"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Problem Solving",
+      "weight": 0.25,
+      "criteria": [
+        {
+          "name": "Analytical Thinking",
+          "description": "Can the candidate break down problems logically?",
+          "scores": {
+            "1": "Poor - No structured approach to problem solving",
+            "3": "Adequate - Can reason through simple problems",
+            "5": "Excellent - Strong analytical framework, considers edge cases"
+          }
+        },
+        {
+          "name": "Creativity",
+          "description": "Does the candidate offer novel or thoughtful approaches?",
+          "scores": {
+            "1": "Poor - Only gives obvious or generic answers",
+            "3": "Adequate - Some original thinking with prompting",
+            "5": "Excellent - Proactively offers creative solutions"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Motivation and Drive",
+      "weight": 0.25,
+      "criteria": [
+        {
+          "name": "Interest in the Role",
+          "description": "Does the candidate show genuine interest in the position?",
+          "scores": {
+            "1": "Poor - No research, seems disengaged",
+            "3": "Adequate - Basic understanding of the role",
+            "5": "Excellent - Researched the company, asks insightful questions"
+          }
+        },
+        {
+          "name": "Growth Mindset",
+          "description": "Is the candidate open to learning and self-improvement?",
+          "scores": {
+            "1": "Poor - Fixed mindset, avoids challenges",
+            "3": "Adequate - Willing to learn but passive about it",
+            "5": "Excellent - Actively seeks growth, gives specific examples"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Culture Fit",
+      "weight": 0.20,
+      "criteria": [
+        {
+          "name": "Collaboration",
+          "description": "Does the candidate work well with others?",
+          "scores": {
+            "1": "Poor - Prefers isolation, dismissive of teamwork",
+            "3": "Adequate - Works with others when required",
+            "5": "Excellent - Thrives in collaborative environments, gives examples"
+          }
+        },
+        {
+          "name": "Professionalism",
+          "description": "Does the candidate present themselves professionally?",
+          "scores": {
+            "1": "Poor - Unprepared, inappropriate conduct",
+            "3": "Adequate - Professional but unremarkable",
+            "5": "Excellent - Polished, punctual, well-prepared"
+          }
+        }
+      ]
+    }
+  ],
+  "pass_threshold": 3.0,
+  "advance_threshold": 4.0
+}
