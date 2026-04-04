@@ -434,7 +434,7 @@ def prepare_audio(audio_path: str) -> str | None:
 def clone_voice(base_url: str, api_key: str, audio_path: str, voice_name: str,
                 noise_reduction: bool = False) -> dict | None:
     """Clone a voice via the Pika voice proxy."""
-    from datetime import UTC, datetime
+    from datetime import datetime, timezone
 
     headers = {"Authorization": f"DevKey {api_key}"}
     ext = os.path.splitext(audio_path)[1].lower()
@@ -469,7 +469,7 @@ def clone_voice(base_url: str, api_key: str, audio_path: str, voice_name: str,
         eprint(f"Error: no file_id in upload response: {json.dumps(result)[:200]}")
         return None
 
-    timestamp = datetime.now(UTC).strftime("%Y%m%d%H%M%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
     voice_id = f"voice_{voice_name}_{timestamp}"
 
     eprint(f"Cloning voice as {voice_id}...")
@@ -500,7 +500,7 @@ def clone_voice(base_url: str, api_key: str, audio_path: str, voice_name: str,
     return {
         "voice_id": voice_id,
         "provider": "pika",
-        "cloned_at": datetime.now(UTC).isoformat(),
+        "cloned_at": datetime.now(timezone.utc).isoformat(),
         "source_audio": os.path.basename(audio_path),
         "retention_warning": "Cloned voices may be deleted after 7 days of non-use",
     }
