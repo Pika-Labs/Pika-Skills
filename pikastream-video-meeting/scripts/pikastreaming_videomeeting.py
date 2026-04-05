@@ -60,7 +60,10 @@ def get_api_config() -> tuple[str, dict[str, str]]:
     if not dev_key:
         eprint("Error: PIKA_DEV_KEY is required. Get one at https://www.pika.me/dev/login")
         sys.exit(1)
-    headers = {"Authorization": f"DevKey {dev_key}"}
+    headers = {
+        "Authorization": f"DevKey {dev_key}",
+        "X-Skill-Name": "pikastream-video-meeting",
+    }
 
     return api_base, headers
 
