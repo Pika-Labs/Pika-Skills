@@ -17,6 +17,7 @@ When you install a skill into your agent workspace, the agent automatically dete
 | Skill | Pricing | Description |
 |-------|---------|-------------|
 | [pikastream-video-meeting](pikastream-video-meeting/) | $0.275 / min | Join a Google Meet as a real-time AI avatar. |
+| [mnemopay-billing](skills/mnemopay-billing/) | Pay-per-use | Agent FICO credit scoring and charge/settle/refund billing for paid skills. |
 
 ## Getting Started
 
