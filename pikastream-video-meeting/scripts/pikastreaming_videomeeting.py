@@ -31,6 +31,7 @@ Exit codes: 0=ok, 2=validation, 3=http, 4=session error, 5=timeout, 6=funding (c
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import mimetypes
 import os
@@ -45,10 +46,30 @@ DEFAULT_IMAGE = SKILL_DIR / "assets" / "placeholder-avatar.jpg"
 DEFAULT_VOICE = "English_radiant_girl"
 DEFAULT_API_BASE = "https://srkibaanghvsriahb.pika.art"
 DEFAULT_VIDEO_API_BASE = "https://7i30hpv4bo9ud5mhianq.pika.art"
+MAX_DOWNLOAD_BYTES = 50 * 1024 * 1024  # 50 MB guard for image downloads
 
 
 def eprint(*a):
     print(*a, file=sys.stderr)
+
+
+def safe_download(url: str, timeout: int = 30) -> bytes:
+    """Download URL content with a size guard to prevent OOM from malicious URLs."""
+    r = requests.get(url, timeout=timeout, stream=True)
+    r.raise_for_status()
+    content_length = r.headers.get("Content-Length")
+    if content_length and int(content_length) > MAX_DOWNLOAD_BYTES:
+        r.close()
+        raise ValueError(f"Download too large: {content_length} bytes (max {MAX_DOWNLOAD_BYTES})")
+    chunks = []
+    total = 0
+    for chunk in r.iter_content(chunk_size=1024 * 1024):
+        total += len(chunk)
+        if total > MAX_DOWNLOAD_BYTES:
+            r.close()
+            raise ValueError(f"Download exceeded {MAX_DOWNLOAD_BYTES} bytes")
+        chunks.append(chunk)
+    return b"".join(chunks)
 
 
 def get_api_config() -> tuple[str, dict[str, str]]:
@@ -100,7 +121,8 @@ def check_balance(base_url: str, dev_key: str) -> int | None:
             timeout=15,
         )
         if r.ok:
-            return r.json().get("data", r.json()).get("balance", 0)
+            body = r.json()
+            return body.get("data", body).get("balance", 0)
         eprint(f"Balance check failed: HTTP {r.status_code}")
         return None
     except Exception as e:
@@ -146,7 +168,8 @@ def ensure_funded(min_balance: int = 100, poll_interval: int = 10, poll_timeout:
     # --- Step 3: Get products and create checkout ---
     try:
         r = requests.get(f"{base_url}/developer/topup/products", headers=auth_headers, timeout=15)
-        products = r.json().get("data", r.json()).get("products", []) if r.ok else []
+        body = r.json() if r.ok else {}
+        products = body.get("data", body).get("products", []) if body else []
     except Exception:
         products = []
 
@@ -171,7 +194,8 @@ def ensure_funded(min_balance: int = 100, poll_interval: int = 10, poll_timeout:
             json={"product_id": chosen["productId"]},
             timeout=15,
         )
-        checkout_url = r.json().get("data", r.json()).get("checkout_url", "") if r.ok else ""
+        body = r.json() if r.ok else {}
+        checkout_url = body.get("data", body).get("checkout_url", "") if body else ""
     except Exception:
         checkout_url = ""
 
@@ -233,15 +257,14 @@ def cmd_join(args):
         import tempfile
         eprint(f"Downloading image: {image_src[:80]}...")
         try:
-            r = requests.get(image_src, timeout=15)
-            r.raise_for_status()
+            img_bytes = safe_download(image_src, timeout=15)
         except Exception as e:
             eprint(f"Error: failed to download image: {e}")
             return 2
         suffix = Path(image_src.split("?")[0]).suffix or ".png"
         fd, tmp_name = tempfile.mkstemp(suffix=suffix)
         tmp = Path(tmp_name)
-        os.write(fd, r.content)
+        os.write(fd, img_bytes)
         os.close(fd)
         img = tmp
         tmp_image = tmp
@@ -369,16 +392,12 @@ def cmd_generate_avatar(args):
         eprint(f"Error: unexpected response: {resp.text[:300]}")
         return 3
 
-    import base64
-
     if "b64_json" in data:
         img_bytes = base64.b64decode(data["b64_json"])
     elif "url" in data:
         eprint("Downloading generated image...")
         try:
-            dl = requests.get(data["url"], timeout=30)
-            dl.raise_for_status()
-            img_bytes = dl.content
+            img_bytes = safe_download(data["url"], timeout=30)
         except Exception as e:
             eprint(f"Error: failed to download: {e}")
             return 3
