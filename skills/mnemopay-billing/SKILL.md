@@ -6,7 +6,7 @@ description: |
   credit scoring (300-850), fraud detection, and reputation tracking.
   Trigger: any skill that requires payment before executing a paid operation.
 version: 1.0.0
-author: Jerry Omiagbo <jerry@mnemopay.com>
+author: Jerry Omiagbo <jeremiah@getbizsuite.com>
 tags:
   - billing
   - payments
