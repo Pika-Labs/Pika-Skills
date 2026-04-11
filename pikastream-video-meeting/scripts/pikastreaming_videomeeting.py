@@ -315,6 +315,7 @@ def cmd_join(args):
     poll_url = f"{api_base}/session/{sid}"
     deadline = time.time() + args.timeout_sec
     last_status = None
+    bot_ready = False
 
     while time.time() < deadline:
         time.sleep(2)
@@ -334,11 +335,31 @@ def cmd_join(args):
             sys.stdout.flush()
             last_status = status
 
-        if status == "ready" or (video and bot):
-            return 0
+        if not bot_ready and (status == "ready" or (video and bot)):
+            bot_ready = True
+            if not args.monitor:
+                return 0
+            # Switch to monitoring phase with max_duration_sec ceiling
+            eprint("Bot is live. Monitoring for session end...")
+            deadline = time.time() + args.max_duration_sec
+            continue
+
         if status in ("error", "closed"):
+            if bot_ready:
+                eprint(f"Session ended: {status}")
+                print(json.dumps({"session_id": sid, "status": status, "auto_left": True}))
+                sys.stdout.flush()
+                return 0
             eprint(f"Error: {status}: {d.get('error_message', '')}")
             return 4
+
+    if bot_ready:
+        # Max duration reached — auto-leave
+        eprint(f"Max duration ({args.max_duration_sec}s) reached. Auto-leaving...")
+        cmd_leave(argparse.Namespace(session_id=sid))
+        print(json.dumps({"session_id": sid, "status": "max_duration", "auto_left": True}))
+        sys.stdout.flush()
+        return 0
 
     eprint("Error: timeout")
     return 5
@@ -606,6 +627,10 @@ def main():
     j.add_argument("--system-prompt-file", help="Path to file containing fallback system prompt")
     j.add_argument("--image")
     j.add_argument("--timeout-sec", type=int, default=90)
+    j.add_argument("--monitor", action="store_true",
+                   help="Stay alive after bot joins and auto-leave when meeting ends")
+    j.add_argument("--max-duration-sec", type=int, default=3600,
+                   help="Max session duration in seconds when --monitor is active (default: 3600)")
 
     lv = sub.add_parser("leave")
     lv.add_argument("--session-id", required=True)
