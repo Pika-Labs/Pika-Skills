@@ -46,6 +46,19 @@ DEFAULT_VOICE = "English_radiant_girl"
 DEFAULT_API_BASE = "https://srkibaanghvsriahb.pika.art"
 DEFAULT_VIDEO_API_BASE = "https://7i30hpv4bo9ud5mhianq.pika.art"
 
+PIKA_SENDER_ID = os.environ.get("PIKA_SENDER_ID", "")
+PIKA_MESSAGE_CHANNEL = os.environ.get("PIKA_MESSAGE_CHANNEL", "")
+
+
+def get_sender_headers() -> dict:
+    """Return sender attribution headers for proxy billing."""
+    headers = {}
+    if PIKA_SENDER_ID:
+        headers["X-Sender-Id"] = PIKA_SENDER_ID
+    if PIKA_MESSAGE_CHANNEL:
+        headers["X-Message-Channel"] = PIKA_MESSAGE_CHANNEL
+    return headers
+
 
 def eprint(*a):
     print(*a, file=sys.stderr)
@@ -63,6 +76,7 @@ def get_api_config() -> tuple[str, dict[str, str]]:
     headers = {
         "Authorization": f"DevKey {dev_key}",
         "X-Skill-Name": "pikastream-video-meeting",
+        **get_sender_headers(),
     }
 
     return api_base, headers
@@ -344,6 +358,7 @@ def cmd_generate_avatar(args):
                 "Content-Type": "application/json",
                 "X-Generation-Type": "image",
                 "X-Model": args.model,
+                **get_sender_headers(),
             },
             json={
                 "model": args.model,
@@ -439,7 +454,7 @@ def clone_voice(base_url: str, api_key: str, audio_path: str, voice_name: str,
     """Clone a voice via the Pika voice proxy."""
     from datetime import datetime, timezone
 
-    headers = {"Authorization": f"DevKey {api_key}"}
+    headers = {"Authorization": f"DevKey {api_key}", **get_sender_headers()}
     ext = os.path.splitext(audio_path)[1].lower()
     content_type = {".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".wav": "audio/wav"}.get(ext, "audio/mpeg")
 
