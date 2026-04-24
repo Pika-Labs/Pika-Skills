@@ -43,8 +43,7 @@ import requests
 SKILL_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_IMAGE = SKILL_DIR / "assets" / "placeholder-avatar.jpg"
 DEFAULT_VOICE = "English_radiant_girl"
-DEFAULT_API_BASE = "https://srkibaanghvsriahb.pika.art"
-DEFAULT_VIDEO_API_BASE = "https://7i30hpv4bo9ud5mhianq.pika.art"
+DEFAULT_API_BASE = "https://7i30hpv4bo9ud5mhianq.pika.art"
 
 PIKA_SENDER_ID = os.environ.get("PIKA_SENDER_ID", "")
 PIKA_MESSAGE_CHANNEL = os.environ.get("PIKA_MESSAGE_CHANNEL", "")
@@ -338,7 +337,7 @@ def cmd_join(args):
 def cmd_generate_avatar(args):
     """Generate a default avatar image via OpenAI proxy."""
     dev_key = os.environ.get("PIKA_DEV_KEY", "")
-    base_url = os.environ.get("PIKA_VIDEO_API_BASE_URL", DEFAULT_VIDEO_API_BASE).rstrip("/")
+    base_url = os.environ.get("PIKA_API_BASE_URL", DEFAULT_API_BASE).rstrip("/")
     if not dev_key:
         eprint("Error: PIKA_DEV_KEY is required")
         return 1
@@ -527,7 +526,7 @@ def clone_voice(base_url: str, api_key: str, audio_path: str, voice_name: str,
 def cmd_clone_voice(args):
     """Clone a voice from an audio file via the Pika voice proxy."""
     dev_key = os.environ.get("PIKA_DEV_KEY", "")
-    base_url = os.environ.get("PIKA_VIDEO_API_BASE_URL", DEFAULT_VIDEO_API_BASE).rstrip("/")
+    base_url = os.environ.get("PIKA_API_BASE_URL", DEFAULT_API_BASE).rstrip("/")
     if not dev_key:
         eprint("Error: PIKA_DEV_KEY is required")
         return 1
